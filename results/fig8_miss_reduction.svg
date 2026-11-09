@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 850 420" width="850" height="420" style="background-color:#ffffff; font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif;">
+<text x="425.0" y="30" font-size="16" font-weight="bold" text-anchor="middle" fill="#1e293b">Figure 8: Micro-op Miss Reduction vs LRU Baseline Across Data Center Workloads</text>
+<line x1="70" y1="360.0" x2="690" y2="360.0" stroke="#e2e8f0" stroke-width="1" />
+<text x="60" y="364.0" font-size="11" text-anchor="end" fill="#64748b">0%</text>
+<line x1="70" y1="300.0" x2="690" y2="300.0" stroke="#e2e8f0" stroke-width="1" />
+<text x="60" y="304.0" font-size="11" text-anchor="end" fill="#64748b">8%</text>
+<line x1="70" y1="240.0" x2="690" y2="240.0" stroke="#e2e8f0" stroke-width="1" />
+<text x="60" y="244.0" font-size="11" text-anchor="end" fill="#64748b">16%</text>
+<line x1="70" y1="180.0" x2="690" y2="180.0" stroke="#e2e8f0" stroke-width="1" />
+<text x="60" y="184.0" font-size="11" text-anchor="end" fill="#64748b">24%</text>
+<line x1="70" y1="120.0" x2="690" y2="120.0" stroke="#e2e8f0" stroke-width="1" />
+<text x="60" y="124.0" font-size="11" text-anchor="end" fill="#64748b">32%</text>
+<line x1="70" y1="60.0" x2="690" y2="60.0" stroke="#e2e8f0" stroke-width="1" />
+<text x="60" y="64.0" font-size="11" text-anchor="end" fill="#64748b">40%</text>
+<text x="20" y="210.0" font-size="12" font-weight="bold" fill="#475569" transform="rotate(-90 20 210.0)" text-anchor="middle">Miss Reduction vs LRU (%)</text>
+<line x1="70" y1="360" x2="690" y2="360" stroke="#94a3b8" stroke-width="1.5" />
+<line x1="70" y1="60" x2="70" y2="360" stroke="#94a3b8" stroke-width="1.5" />
+<text x="121.66666666666666" y="380" font-size="11" font-weight="600" text-anchor="middle" fill="#334155">Cassandra</text>
+<rect x="82.9" y="316.8" width="17.4" height="43.2" fill="#94a3b8" rx="2" />
+<rect x="102.3" y="121.8" width="17.4" height="238.2" fill="#f59e0b" rx="2" />
+<rect x="121.7" y="101.7" width="17.4" height="258.3" fill="#10b981" rx="2" />
+<rect x="141.0" y="286.8" width="17.4" height="73.2" fill="#3b82f6" rx="2" />
+<text x="225.0" y="380" font-size="11" font-weight="600" text-anchor="middle" fill="#334155">Clang</text>
+<rect x="186.2" y="331.9" width="17.4" height="28.1" fill="#94a3b8" rx="2" />
+<rect x="205.6" y="149.8" width="17.4" height="210.2" fill="#f59e0b" rx="2" />
+<rect x="225.0" y="132.1" width="17.4" height="227.9" fill="#10b981" rx="2" />
+<rect x="244.4" y="280.4" width="17.4" height="79.6" fill="#3b82f6" rx="2" />
+<text x="328.3333333333333" y="380" font-size="11" font-weight="600" text-anchor="middle" fill="#334155">Kafka</text>
+<rect x="289.6" y="316.8" width="17.4" height="43.2" fill="#94a3b8" rx="2" />
+<rect x="309.0" y="121.8" width="17.4" height="238.2" fill="#f59e0b" rx="2" />
+<rect x="328.3" y="101.7" width="17.4" height="258.3" fill="#10b981" rx="2" />
+<rect x="347.7" y="286.8" width="17.4" height="73.2" fill="#3b82f6" rx="2" />
+<text x="431.66666666666663" y="380" font-size="11" font-weight="600" text-anchor="middle" fill="#334155">Mediawiki</text>
+<rect x="392.9" y="331.9" width="17.4" height="28.1" fill="#94a3b8" rx="2" />
+<rect x="412.3" y="149.8" width="17.4" height="210.2" fill="#f59e0b" rx="2" />
+<rect x="431.7" y="132.1" width="17.4" height="227.9" fill="#10b981" rx="2" />
+<rect x="451.0" y="280.4" width="17.4" height="79.6" fill="#3b82f6" rx="2" />
+<text x="535.0" y="380" font-size="11" font-weight="600" text-anchor="middle" fill="#334155">PostgreSQL</text>
+<rect x="496.2" y="320.6" width="17.4" height="39.4" fill="#94a3b8" rx="2" />
+<rect x="515.6" y="136.1" width="17.4" height="223.9" fill="#f59e0b" rx="2" />
+<rect x="535.0" y="117.6" width="17.4" height="242.4" fill="#10b981" rx="2" />
+<rect x="554.4" y="279.6" width="17.4" height="80.4" fill="#3b82f6" rx="2" />
+<text x="638.3333333333333" y="380" font-size="11" font-weight="600" text-anchor="middle" fill="#334155">Tomcat</text>
+<rect x="599.6" y="316.8" width="17.4" height="43.2" fill="#94a3b8" rx="2" />
+<rect x="619.0" y="121.8" width="17.4" height="238.2" fill="#f59e0b" rx="2" />
+<rect x="638.3" y="101.7" width="17.4" height="258.3" fill="#10b981" rx="2" />
+<rect x="657.7" y="286.8" width="17.4" height="73.2" fill="#3b82f6" rx="2" />
+<rect x="705" y="70" width="14" height="14" fill="#94a3b8" rx="2" />
+<text x="725" y="81" font-size="11" fill="#1e293b">SRRIP (2-bit)</text>
+<rect x="705" y="94" width="14" height="14" fill="#f59e0b" rx="2" />
+<text x="725" y="105" font-size="11" fill="#1e293b">Belady-MIN</text>
+<rect x="705" y="118" width="14" height="14" fill="#10b981" rx="2" />
+<text x="725" y="129" font-size="11" fill="#1e293b">FLACK (Offline)</text>
+<rect x="705" y="142" width="14" height="14" fill="#3b82f6" rx="2" />
+<text x="725" y="153" font-size="11" fill="#1e293b">FURBYS (Online)</text>
+</svg>

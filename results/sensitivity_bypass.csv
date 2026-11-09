@@ -1,0 +1,3 @@
+BypassMode,UopMisses,Bypasses,MissReductionVsLRU
+BypassOn,82170,5545,9.76279
+BypassOff,80690,0,11.3881

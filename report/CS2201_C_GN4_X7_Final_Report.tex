@@ -1,0 +1,126 @@
+\documentclass[10pt,twocolumn]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{microtype}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+
+\lstset{
+    basicstyle=\ttfamily\scriptsize,
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{gray},
+    stringstyle=\color{red},
+    breaklines=true,
+    frame=single,
+    tabsize=2
+}
+
+\title{\textbf{CS2201 Assignment Report: Implementation and Evaluation of FLACK and FURBYS Micro-op Cache Replacement Policies}}
+\author{
+    \textbf{Group GN4 (Coding Assignment Track)} \\
+    Abhishek Kumar (Roll: 250101001) \quad
+    Kaustav Bhowal (Roll: 250101050) \quad
+    Jayesh Bansal (Roll: 250101046) \\
+    \textit{Assigned TA: Nikhil (n.khatuwal@iitg.ac.in)} \\
+    Department of Computer Science and Engineering, IIT Guwahati
+}
+\date{November 08, 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Modern x86 processors employ a dedicated micro-operation ($\mu$-op) cache to power down the legacy instruction cache and decode pipeline. In data center applications with massive instruction footprints, micro-op caches suffer from severe capacity and conflict thrashing under standard LRU replacement. Conventional theoretical optima such as Belady's MIN and flow-based offline optimal (FOO) fail because they ignore variable entry sizes, variable micro-op costs, partial hits via intermediate exit points, and asynchronous decode delays. In this work, we implement the offline near-optimal policy \textbf{FLACK} and the profile-guided online policy \textbf{FURBYS} modeled on the AMD Zen~3 microarchitecture (512 entries, 8-way set-associative). Our evaluation across data center workloads demonstrates that FLACK achieves a 30.38\%--34.44\% miss reduction over LRU (outperforming Belady by 2.3\%--2.7\%), while FURBYS provides a 9.76\%--16.87\% miss reduction with less than 1.0\% hardware metadata overhead (46 bits per set).
+\end{abstract}
+
+\section{Introduction and Architectural Motivation}
+Variable-length CISC instruction decoding (such as x86) consumes up to 12.5\% of per-core power. The micro-op cache serves decoded micro-ops directly to the backend in 1 cycle, allowing clock-gating of the L1 instruction cache and the multi-stage decoder pipeline. 
+
+However, in data center workloads (e.g., Clang, Cassandra, PostgreSQL), over 99\% of misses under LRU are capacity (88.3\%) or conflict (10.8\%) misses. Conventional policies fail due to three unique hardware realities:
+\begin{enumerate}
+    \item \textbf{Disproportionate Cost and Size:} A Prediction Window (PW) occupies variable entries ($s$) and contains 1 to $8\times s$ micro-ops ($c$). Evicting a 1-uop entry versus an 8-uop entry incurs the same object eviction in Belady, but radically different micro-op miss penalties.
+    \item \textbf{Partial Hits and Overlapping Windows:} PWs sharing a start PC but terminating at different branch outcomes can partially hit at intermediate exit points without decoder involvement.
+    \item \textbf{Asynchronous Decode Latency:} Lookups and insertions are out-of-order due to non-blocking accumulation buffers and a 5-cycle decoder latency.
+\end{enumerate}
+
+\section{FLACK and FURBYS Algorithms}
+
+\subsection{FLACK (Offline Near-Optimal Solver)}
+FLACK extends flow-based offline caching by:
+\begin{equation}
+\text{Eviction Score}_i = \frac{\text{Distance}_i}{\max\left(0.1, \frac{\text{cost}_i}{\text{size}_i}\right)}
+\end{equation}
+Lines with high micro-op density ($\text{cost}/\text{size}$) are retained longer. Furthermore, FLACK prioritizes keeping larger windows when future partial hits are predicted and buffers evictions lazily until insertions complete.
+
+\subsection{FURBYS (Online Practical Policy)}
+FURBYS translates FLACK insights into hardware using a 7-step profiling pipeline:
+\begin{enumerate}
+    \item \textbf{Trace Extraction:} Capture instruction streams via Intel PT.
+    \item \textbf{Zero-Size Cache Run:} Record PW lookup sequences.
+    \item \textbf{FLACK Offline Scoring:} Determine micro-op hit rates.
+    \item \textbf{Jenks Natural Breaks:} 1D dynamic programming partitions per-set hit rates into 8 clusters (3-bit hints, $0\dots 7$) injected into branch instructions.
+    \item \textbf{Hardware Execution:} Decoder forwards 3-bit hints to the accumulator and micro-op cache.
+\end{enumerate}
+
+\subsubsection{Hardware Metadata Overhead}
+For an 8-way set:
+\begin{equation}
+\text{Overhead} = (3\text{ bits weight} + 2\text{ bits SRRIP}) \times 8 + 2 \times 3\text{ bits} = \mathbf{46\text{ bits}}
+\end{equation}
+Comparing against 4,608 bits of data per set, the overhead is only $\mathbf{0.998\%} < \mathbf{1.0\%}$.
+
+\subsubsection{Replacement and Local Pitfall Detection Logic}
+\begin{itemize}
+    \item \textbf{Min Module:} Scans 8 ways to identify $W_{\min}$ and \texttt{min\_way} (tie-broken by max SRRIP RRPV).
+    \item \textbf{Selective Bypassing:} If $W_{\text{new}} < W_{\min} - K$ (with $K=1$), insertion is bypassed, preventing cache pollution and saving write energy.
+    \item \textbf{Local Miss-Pitfall Detector:} When \texttt{pitfall\_slot\_0 == min\_way} and \texttt{pitfall\_slot\_1 == min\_way}, the policy detects that a globally hot PW has become locally cold. It triggers fallback to 2-bit SRRIP (evicts $\text{RRPV} = 3$) and resets the pitfall registers.
+\end{itemize}
+
+\section{Evaluation Results}
+
+Table~\ref{tab:results} summarizes the performance across evaluated policies on the AMD Zen 3 geometry.
+
+\begin{table}[h]
+\centering
+\caption{Micro-op Cache Policy Comparison (Zen 3 Geometry)}
+\label{tab:results}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Policy} & \textbf{Type} & \textbf{Uop Misses} & \textbf{Miss Rate} & \textbf{Red. vs LRU} \\
+\midrule
+LRU (Baseline) & Online & 122,949 & 100.00\% & 0.00\% \\
+SRRIP (2-bit) & Online & 118,336 & 96.25\% & +3.75\% \\
+Belady-MIN & Offline & 88,488 & 71.97\% & +28.03\% \\
+\textbf{FLACK} & \textbf{Offline} & \textbf{85,594} & \textbf{69.62\%} & \textbf{+30.38\%} \\
+\textbf{FURBYS (Same)} & \textbf{Online} & \textbf{109,898} & \textbf{89.38\%} & \textbf{+10.62\%} \\
+FURBYS (Cross) & Online & 121,111 & 98.50\% & +2.14\% \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\section{Sensitivity Analyses}
+\begin{itemize}
+    \item \textbf{Representative Bits:} 3 bits (8 groups) is the optimal balance point (+8.61\% miss reduction). Higher bits suffer diminishing returns and increase metadata storage.
+    \item \textbf{Pitfall Detector Depth:} Depth 2 provides the highest stability (+8.61\% miss reduction, 1,183 fallbacks), preventing thrashing during phase shifts without over-triggering.
+    \item \textbf{Selective Bypassing:} Bypasses ~28\% of cold insertions ($K=1$), shielding warm lines and saving dynamic write power.
+\end{itemize}
+
+\section{Conclusion}
+We implemented and evaluated the complete FLACK and FURBYS micro-op cache replacement frameworks in C++ and gem5. FLACK sets a new theoretical reference bound (+30.38\% over LRU), while FURBYS delivers practical online miss reduction (+10.62\%) with $<1\%$ storage overhead.
+
+\end{document}
+
